@@ -237,21 +237,21 @@ class RunPodClient:
         return workflow
     
     def _get_wan_optimizations(self, model_name: str) -> Dict[str, Any]:
-        """Get optimized settings for WAN models on RTX 4090"""
+        """Get optimized settings for WAN models on RTX 6000 Ada"""
         
         if 'wan' in model_name.lower():
             return {
-                "sampler": "dpmpp_2m",
+                "sampler": "dpmpp_2m_karras",  # Full name for better results
                 "scheduler": "karras",
-                "steps": 22,  # Sweet spot for WAN
+                "steps": 25,  # Can afford more steps with 48GB VRAM
                 "cfg_scale": 6.5,
                 "clip_skip": 2
             }
         else:
             return {
-                "sampler": "euler_a",
+                "sampler": "euler_a", 
                 "scheduler": "normal",
-                "steps": 25,
+                "steps": 28,  # Slightly higher for RTX 6000
                 "cfg_scale": 7.5,
                 "clip_skip": 1
             }

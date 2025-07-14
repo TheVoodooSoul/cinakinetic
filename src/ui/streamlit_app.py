@@ -142,13 +142,17 @@ def main():
         # Navigation
         page = st.selectbox(
             "Navigate",
-            ["🎬 Storyboard Editor", "🛠️ Setup & Config"],
+            ["🎬 Storyboard Editor", "🚀 Production Studio", "🛠️ Setup & Config"],
             index=0
         )
         
         if page == "🛠️ Setup & Config":
             from .setup_page import create_setup_page
             create_setup_page()
+            return
+        elif page == "🚀 Production Studio":
+            from .production_interface import create_production_interface
+            create_production_interface()
             return
         
         st.header("🎯 Storyboard Manager")
