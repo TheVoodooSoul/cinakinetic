@@ -81,7 +81,7 @@ class ComfyUIClient:
             },
             "3": {
                 "inputs": {
-                    "seed": config.seed or -1,
+                    "seed": config.seed if config.seed is not None else 42,
                     "steps": config.steps,
                     "cfg": config.cfg_scale,
                     "sampler_name": "euler",
@@ -211,15 +211,8 @@ class ComfyUIClient:
     
     def _get_model_name(self, model: str, scene_type: str) -> str:
         """Get appropriate model based on scene type"""
-        model_mapping = {
-            "car_chase": "realisticVisionV60_v60B1.safetensors",
-            "fight_scene": "epicrealismXL_v10.safetensors", 
-            "explosion": "juggernautXL_v8Rundiffusion.safetensors",
-            "aerial_combat": "dreamshaper_8.safetensors",
-            "space_battle": "scientificDiffusion_v10.safetensors"
-        }
-        
-        return model_mapping.get(scene_type, "realisticVisionV60_v60B1.safetensors")
+        # Use the downloaded SD 1.5 model for all scene types initially
+        return "sd_v1-5.safetensors"
     
     def _build_negative_prompt(self, scene_params: SceneParameters, config: GenerationConfig) -> str:
         """Build negative prompt based on scene parameters"""

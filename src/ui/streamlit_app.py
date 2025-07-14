@@ -139,6 +139,18 @@ def main():
     
     # Sidebar for storyboard management
     with st.sidebar:
+        # Navigation
+        page = st.selectbox(
+            "Navigate",
+            ["🎬 Storyboard Editor", "🛠️ Setup & Config"],
+            index=0
+        )
+        
+        if page == "🛠️ Setup & Config":
+            from .setup_page import create_setup_page
+            create_setup_page()
+            return
+        
         st.header("🎯 Storyboard Manager")
         
         # Create new storyboard
@@ -215,7 +227,7 @@ def main():
             st.write(storyboard['description'])
         
         # Scene editor tabs
-        tab1, tab2, tab3 = st.tabs(["🎯 Scene Editor", "🎬 Storyboard View", "⚙️ Export"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 Scene Editor", "🎨 Sketch to Image", "⚡ Iterative Workflow", "🎬 Storyboard View", "⚙️ Export"])
         
         with tab1:
             # Scene creation interface
@@ -349,6 +361,168 @@ def main():
                     st.error("Please enter a scene prompt")
         
         with tab2:
+            # Sketch to Image interface
+            from .sketch_interface import SketchInterface
+            
+            sketch_ui = SketchInterface()
+            
+            st.markdown("### 🎨 Sketch to Action Scene")
+            st.write("Draw your action scene composition and generate AI images from your sketches.")
+            
+            # Generation method selection
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                generation_method = st.selectbox(
+                    "Generation Method",
+                    ["ComfyUI (Local)", "Replicate API (Cloud)"],
+                    help="ComfyUI gives full control, Replicate is faster but has content restrictions"
+                )
+                
+                if generation_method == "Replicate API (Cloud)":
+                    replicate_token = st.text_input(
+                        "Replicate API Token",
+                        type="password",
+                        help="Get your token from https://replicate.com/account/api-tokens"
+                    )
+                    
+                    if replicate_token:
+                        st.success("✅ Replicate token configured")
+                    else:
+                        st.warning("⚠️ Enter Replicate token to use cloud generation")
+            
+            with col2:
+                # WAN model selection
+                wan_model = st.selectbox(
+                    "WAN Model",
+                    ["WAN safetensors", "WAN2.114b", "Auto-select"],
+                    help="Choose your WAN model for generation"
+                )
+                
+                if wan_model != "Auto-select":
+                    wan_path = st.text_input(
+                        f"Path to {wan_model}",
+                        placeholder=f"/path/to/{wan_model.lower().replace(' ', '_')}"
+                    )
+            
+            # Main sketch interface
+            sketch_result = sketch_ui.create_drawing_canvas("main")
+            
+            if sketch_result:
+                st.success("🎨 Sketch captured! Generating action scene...")
+                
+                # Prepare generation parameters
+                generation_params = {
+                    "sketch_data": sketch_result,
+                    "scene_params": {
+                        "scene_type": scene_type,
+                        "violence_level": violence_level,
+                        "camera_angle": camera_angle,
+                        "setting": setting,
+                        "lighting": lighting,
+                        "motion_blur": motion_blur
+                    },
+                    "generation_config": {
+                        "width": sketch_result["canvas_size"][0],
+                        "height": sketch_result["canvas_size"][1],
+                        "steps": steps,
+                        "cfg_scale": cfg_scale,
+                        "controlnet": {
+                            "type": sketch_result["control_type"],
+                            "enabled": True,
+                            "strength": sketch_result["control_strength"]
+                        }
+                    },
+                    "method": generation_method,
+                    "wan_model": wan_model if wan_model != "Auto-select" else None
+                }
+                
+                # Generate with selected method
+                if generation_method == "ComfyUI (Local)":
+                    # Use ComfyUI generation
+                    generation_request = {
+                        "node_id": str(uuid.uuid4()),
+                        "prompt": prompt or "action scene from sketch",
+                        "scene_params": generation_params["scene_params"],
+                        "generation_config": generation_params["generation_config"]
+                    }
+                    
+                    result = generate_scene(generation_request)
+                    
+                else:
+                    # Use Replicate API
+                    if replicate_token:
+                        st.info("🌐 Generating with Replicate API...")
+                        # This would call the Replicate client
+                        st.info("Replicate generation will be implemented when you provide the API token")
+                        result = None
+                    else:
+                        st.error("Please provide Replicate API token")
+                        result = None
+                
+                if result and result.get("success"):
+                    col1, col2, col3 = st.columns([1, 1, 1])
+                    
+                    with col1:
+                        st.write("**Original Sketch**")
+                        st.image(sketch_result["processed_image"], caption="Your Sketch")
+                    
+                    with col2:
+                        st.write("**Generated Scene**")
+                        st.image(
+                            "https://via.placeholder.com/512x512/333/FFF?text=Generated+Action+Scene",
+                            caption="AI Generated Result"
+                        )
+                    
+                    with col3:
+                        st.write("**Generation Info**")
+                        st.write(f"Method: {generation_method}")
+                        st.write(f"Control: {sketch_result['control_type']}")
+                        st.write(f"Strength: {sketch_result['control_strength']}")
+                        st.write(f"Time: {result.get('generation_time', 0):.1f}s")
+                        
+                        if st.button("🔄 Refine Result"):
+                            st.session_state['refine_image'] = result["image_url"]
+                    
+                    # Iterative refinement
+                    if 'refine_image' in st.session_state:
+                        st.markdown("---")
+                        refinement_result = sketch_ui.create_refinement_workflow(st.session_state['refine_image'])
+                        
+                        if refinement_result:
+                            st.success("🔄 Applying refinement...")
+                            # This would apply the refinement
+                            st.info("Refinement processing...")
+            
+            # ControlNet comparison section
+            st.markdown("---")
+            st.markdown("### 🎯 ControlNet Comparison")
+            
+            if st.button("🧪 Generate Multiple ControlNet Versions"):
+                st.info("This will generate the same scene with different ControlNet approaches")
+                
+                # Show comparison grid
+                control_types = ["openpose", "canny", "depth", "lineart"]
+                cols = st.columns(len(control_types))
+                
+                for i, control_type in enumerate(control_types):
+                    with cols[i]:
+                        st.image(
+                            f"https://via.placeholder.com/256x256/333/FFF?text={control_type.title()}",
+                            caption=f"{control_type.title()} Control"
+                        )
+                        st.write(f"Strength: 0.8")
+                        if st.button(f"Use {control_type}", key=f"use_{control_type}"):
+                            st.success(f"Using {control_type} ControlNet")
+        
+        with tab3:
+            # Iterative Workflow interface
+            from .iterative_workflow import IterativeWorkflow
+            
+            workflow = IterativeWorkflow()
+            workflow.create_workflow_interface()
+        
+        with tab5:
             # Storyboard view
             st.subheader("Storyboard Timeline")
             
