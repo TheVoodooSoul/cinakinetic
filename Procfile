@@ -1,0 +1,1 @@
+web: streamlit run railway_setup.py --server.port $PORT --server.headless true --server.enableCORS false
