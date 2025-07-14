@@ -48,4 +48,4 @@ This tool is designed for creating cinematic action sequences with:
 
 ## License
 
-MIT License - See LICENSE file for details
+MIT License - See LICENSE file for details# cinakinetic
