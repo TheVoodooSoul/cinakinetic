@@ -348,8 +348,7 @@ def show_generation_page():
     
     with col2:
         
-        # Tips
-        """)
+        pass  # Placeholder for tips section
 
 def generate_and_display(prompt, style, resolution, steps, guidance, seed, batch_size):
     """Handle the generation process with proper UI feedback"""
@@ -934,7 +933,7 @@ def show_controlnet_studio_page():
             st.markdown(f"**{name}**: {desc}")
 
 def add_workflow_node(node_type, name, params):
-    """Add a new node to the workflow"""
+    # Add a new node to the workflow
     new_node = {
         "id": len(st.session_state.workflow_nodes),
         "type": node_type,
