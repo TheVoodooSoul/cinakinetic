@@ -173,13 +173,13 @@ def main():
     <div class="main-header">
         <h1>🎬 CinaKinetic</h1>
         <p>Cinema Action Scene Generator</p>
-        <p><em>Professional R-rated action sequences with AI</em></p>
+        <p><em>Choreograph the Impossible</em></p>
     </div>
     """, unsafe_allow_html=True)
 
     # Hero Video Section
     st.markdown("## 🎥 See CinaKinetic in Action")
-    st.markdown("*Watch how professional action scenes are created with our AI workflow platform*")
+    st.markdown("*See impossible action choreography brought to life*")
     
     # YouTube trailer embed
     video_col1, video_col2, video_col3 = st.columns([1, 3, 1])
