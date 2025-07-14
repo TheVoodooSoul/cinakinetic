@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: cinakinetic
+    env: python
+    buildCommand: pip install -r requirements_render.txt
+    startCommand: streamlit run railway_setup.py --server.port $PORT --server.headless true --server.enableCORS false --server.address 0.0.0.0
+    healthCheckPath: /
+    envVars:
+      - key: RUNPOD_API_KEY
+        sync: false
+      - key: RUNPOD_ENDPOINT  
+        sync: false
