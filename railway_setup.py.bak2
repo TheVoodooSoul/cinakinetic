@@ -191,60 +191,7 @@ def main():
         st.metric("🎯 Success Rate", "98.5%")
     with stats_col4:
         st.metric("🔥 R-Rated Support", "Full")
-
-    # Featured Gallery Section with Custom Images
-    st.markdown("---")
-    st.markdown("## 🎨 Professional Action Scenes Created with CinaKinetic")
-    st.markdown("*Real examples showcasing our AI generation capabilities and R-rated content support*")
-    
-    gallery_col1, gallery_col2, gallery_col3 = st.columns(3)
-    
-    with gallery_col1:
-        try:
-            st.image("static/images/gallery/fight_scene_1.jpg", caption="🥊 Underground Fight Club", use_column_width=True)
-        except:
-            st.image("https://picsum.photos/400/600?random=1", caption="🥊 Underground Fight Club")
-        st.caption("*Intense combat scene with dramatic lighting and cinematic composition*")
-    
-    with gallery_col2:
-        try:
-            st.image("static/images/gallery/gladiator_scene.jpg", caption="⚔️ Gladiator vs Lion", use_column_width=True)
-        except:
-            st.image("https://picsum.photos/400/600?random=2", caption="⚔️ Gladiator vs Lion")
-        st.caption("*Epic colosseum battle - man vs beast in cinematic glory*")
-    
-    with gallery_col3:
-        try:
-            st.image("static/images/gallery/fight_scene_2.jpg", caption="🔥 R-Rated Action", use_column_width=True)
-        except:
-            st.image("https://picsum.photos/400/600?random=3", caption="🔥 R-Rated Action")
-        st.caption("*Professional quality action scenes with no content restrictions*")
-    
-    # Quality showcase stats
-    st.markdown("### 🏆 Why Choose CinaKinetic?")
-    
-    feature_col1, feature_col2, feature_col3, feature_col4 = st.columns(4)
-    with feature_col1:
-        st.markdown("**🔥 R-Rated Support**")
-        st.caption("No content restrictions")
-    with feature_col2:
-        st.markdown("**🎬 Cinema Quality**")
-        st.caption("Professional results")
-    with feature_col3:
-        st.markdown("**⚡ Fast Generation**")
-        st.caption("30-60 second turnaround")
-    with feature_col4:
-        st.markdown("**🎯 Specialized**")
-        st.caption("Action scene focused")
-    
-    # Call-to-action
-    st.markdown("---")
-    cta_col1, cta_col2, cta_col3 = st.columns([1, 2, 1])
-    with cta_col2:
-        st.markdown("### 🚀 Ready to Create Epic Action Scenes?")
-        if st.button("🎬 Start Creating Now", type="primary", key="main_cta"):
-            st.balloons()
-            st.success("🎉 Welcome to CinaKinetic! Use the sidebar to explore our professional workflow tools.")    # Sidebar
+    # Sidebar
     with st.sidebar:
         st.markdown("## 🎬 CinaKinetic Control Panel")
         
