@@ -64,10 +64,11 @@ def create_production_interface():
                 st.rerun()
     
     # Main tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
         "🎨 Studio", 
         "⚡ Templates", 
         "🎬 Video Suite",
+        "🎯 LoRA Studio",
         "💳 Billing",
         "📊 Analytics"
     ])
@@ -82,9 +83,15 @@ def create_production_interface():
         create_video_suite_interface()
     
     with tab4:
-        create_pricing_interface()
+        # LoRA Studio
+        from ..lora.lora_trainer import LoRATrainer
+        lora_trainer = LoRATrainer()
+        lora_trainer.create_lora_interface()
     
     with tab5:
+        create_pricing_interface()
+    
+    with tab6:
         create_analytics_interface()
 
 def create_studio_interface():
@@ -183,6 +190,11 @@ def create_image_params_ui(resolution: str) -> Dict[str, Any]:
             ["Cinematic", "Realistic", "Dramatic", "High Contrast", "Film Noir"]
         )
     
+    # LoRA selection
+    with st.expander("🎯 LoRA Selection", expanded=True):
+        from ..lora.lora_trainer import integrate_lora_with_generation
+        lora_selection = integrate_lora_with_generation()
+    
     # Advanced settings
     with st.expander("Advanced Settings"):
         col1, col2, col3 = st.columns(3)
@@ -201,14 +213,45 @@ def create_image_params_ui(resolution: str) -> Dict[str, Any]:
     
     width, height = map(int, resolution.split('x'))
     
+    # Build LoRA list
+    loras = []
+    if 'lora_selection' in locals() and lora_selection:
+        if lora_selection.get('character_lora'):
+            char = st.session_state.characters[lora_selection['character_lora']]
+            if char.get('lora_name'):
+                loras.append({"name": char['lora_name'], "strength": 0.8})
+        
+        if lora_selection.get('fighting_style'):
+            loras.append({"name": f"{lora_selection['fighting_style']}.safetensors", "strength": 0.7})
+        
+        for additional_lora in lora_selection.get('additional_loras', []):
+            loras.append({"name": f"{additional_lora}.safetensors", "strength": 0.6})
+    
+    # Build enhanced prompt with LoRA triggers
+    enhanced_prompt = f"{prompt}, {scene_type.lower()}, {style.lower()} style"
+    
+    if loras:
+        triggers = []
+        if lora_selection.get('character_lora'):
+            char = st.session_state.characters[lora_selection['character_lora']]
+            triggers.append(char.get('trigger_word', ''))
+        if lora_selection.get('fighting_style'):
+            triggers.append(lora_selection['fighting_style'])
+        for lora in lora_selection.get('additional_loras', []):
+            triggers.append(lora)
+        
+        if triggers:
+            enhanced_prompt += f", {', '.join(filter(None, triggers))}"
+    
     return {
-        "prompt": f"{prompt}, {scene_type.lower()}, {style.lower()} style",
+        "prompt": enhanced_prompt,
         "negative_prompt": negative_prompt,
         "width": width,
         "height": height,
         "seed": seed if seed != -1 else None,
         "model_name": wan_model if wan_model != "Auto" else "wan.safetensors",
-        "filename_prefix": f"{scene_type.lower().replace(' ', '_')}_{int(time.time())}"
+        "filename_prefix": f"{scene_type.lower().replace(' ', '_')}_{int(time.time())}",
+        "loras": loras
     }
 
 def create_sketch_params_ui(resolution: str) -> Dict[str, Any]:

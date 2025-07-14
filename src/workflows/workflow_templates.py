@@ -470,6 +470,37 @@ class ActionWorkflowTemplate:
         }
         
         return preprocessors.get(controlnet_type, "OpenposePreprocessor")
+    
+    def _add_lora_nodes(self, workflow: Dict[str, Any], loras: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Add LoRA nodes to workflow"""
+        
+        node_id = 20
+        last_model_output = ["4", 0]  # From CheckpointLoader
+        last_clip_output = ["4", 1]
+        
+        for lora in loras:
+            workflow[str(node_id)] = {
+                "inputs": {
+                    "lora_name": lora["name"],
+                    "strength_model": lora.get("strength", 0.8),
+                    "strength_clip": lora.get("strength", 0.8),
+                    "model": last_model_output,
+                    "clip": last_clip_output
+                },
+                "class_type": "LoraLoader",
+                "_meta": {"title": f"Load LoRA {lora['name']}"}
+            }
+            
+            last_model_output = [str(node_id), 0]
+            last_clip_output = [str(node_id), 1]
+            node_id += 1
+        
+        # Update text encoders and sampler to use final LoRA output
+        workflow["1"]["inputs"]["clip"] = last_clip_output
+        workflow["2"]["inputs"]["clip"] = last_clip_output
+        workflow["3"]["inputs"]["model"] = last_model_output
+        
+        return workflow
 
 # Pre-built templates for common action scenes
 ACTION_SCENE_TEMPLATES = {

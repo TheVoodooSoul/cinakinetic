@@ -142,7 +142,7 @@ def main():
         # Navigation
         page = st.selectbox(
             "Navigate",
-            ["🎬 Storyboard Editor", "🚀 Production Studio", "🛠️ Setup & Config"],
+            ["🎬 Storyboard Editor", "🚀 Production Studio", "🎯 LoRA Studio", "🛠️ Setup & Config"],
             index=0
         )
         
@@ -153,6 +153,11 @@ def main():
         elif page == "🚀 Production Studio":
             from .production_interface import create_production_interface
             create_production_interface()
+            return
+        elif page == "🎯 LoRA Studio":
+            from ..lora.lora_trainer import LoRATrainer
+            lora_trainer = LoRATrainer()
+            lora_trainer.create_lora_interface()
             return
         
         st.header("🎯 Storyboard Manager")
