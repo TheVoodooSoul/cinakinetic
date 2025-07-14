@@ -347,31 +347,8 @@ def show_generation_page():
                     st.warning("⚠️ Please enter a scene description")
     
     with col2:
-        st.markdown("### 🎯 Quick Action Prompts")
-        
-        quick_prompts = [
-            "Intense warehouse fight scene at night",
-            "Car chase through narrow city streets", 
-            "Rooftop confrontation in the rain",
-            "Underground fight club atmosphere",
-            "Tactical team building breach",
-            "Motorcycle pursuit at sunset",
-            "Martial arts duel in ancient temple",
-            "Gun fight in abandoned factory"
-        ]
-        
-        for quick_prompt in quick_prompts:
-            if st.button(quick_prompt, key=quick_prompt):
-                st.rerun()
         
         # Tips
-        st.markdown("### 💡 Pro Tips")
-        st.info("""
-        **Best Results:**
-        - Include lighting details
-        - Specify camera angles
-        - Add mood descriptors
-        - Mention specific fighting styles
         """)
 
 def generate_and_display(prompt, style, resolution, steps, guidance, seed, batch_size):
