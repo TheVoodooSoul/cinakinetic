@@ -287,11 +287,11 @@ def main():
     elif page == "🔗 Node Workflow Editor":
         show_node_workflow_page()
     elif page == "✏️ Sketch-to-Scene":
-        show_sketch_to_scene_page()
+        show_video_page()
     elif page == "📋 Storyboard Manager":
-        show_storyboard_manager_page()
+        show_gallery_page()
     elif page == "🎮 ControlNet Studio":
-        show_controlnet_studio_page()
+        show_billing_page()
 
 def show_generation_page():
     st.markdown("## 🎨 Generate Epic Action Scene")
@@ -511,7 +511,7 @@ def show_node_workflow_page():
                     if st.button(f"Use {char['name']}", key=char['name']):
                         st.success(f"Selected {char['name']} for generation")
 
-def show_sketch_to_scene_page():
+def show_video_page():
     st.markdown("## 🎥 Video Generation")
     
     tab1, tab2, tab3 = st.tabs(["📝 Text-to-Video", "🖼️ Image-to-Video", "🎬 Video-to-Video"])
@@ -557,7 +557,7 @@ def show_sketch_to_scene_page():
         if uploaded_video:
             st.video(uploaded_video)
 
-def show_storyboard_manager_page():
+def show_gallery_page():
     st.markdown("## 📊 Your Action Scene Gallery")
     
     # Gallery stats
@@ -589,7 +589,7 @@ def show_storyboard_manager_page():
         with cols[i % 3]:
             st.image("https://picsum.photos/300/400", caption=f"Action Scene {i+1}")
 
-def show_controlnet_studio_page():
+def show_billing_page():
     st.markdown("## 💳 Credits & Billing")
     
     # Current status

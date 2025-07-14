@@ -291,7 +291,7 @@ def main():
     elif page == "📋 Storyboard Manager":
         show_storyboard_manager_page()
     elif page == "🎮 ControlNet Studio":
-        show_controlnet_studio_page()
+        show_billing_page()
 
 def show_generation_page():
     st.markdown("## 🎨 Generate Epic Action Scene")
@@ -589,7 +589,7 @@ def show_storyboard_manager_page():
         with cols[i % 3]:
             st.image("https://picsum.photos/300/400", caption=f"Action Scene {i+1}")
 
-def show_controlnet_studio_page():
+def show_billing_page():
     st.markdown("## 💳 Credits & Billing")
     
     # Current status
