@@ -1,0 +1,35 @@
+{
+  "name": "cinakinetic",
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/ui/streamlit_app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/ui/streamlit_app.py"
+    }
+  ],
+  "env": {
+    "SUPABASE_URL": "@supabase_url",
+    "SUPABASE_ANON_KEY": "@supabase_anon_key",
+    "SUPABASE_SERVICE_KEY": "@supabase_service_key",
+    "RUNPOD_API_KEY": "@runpod_api_key",
+    "RUNPOD_ENDPOINT": "@runpod_endpoint",
+    "STRIPE_PUBLISHABLE_KEY": "@stripe_publishable_key",
+    "STRIPE_SECRET_KEY": "@stripe_secret_key",
+    "JWT_SECRET": "@jwt_secret",
+    "PRODUCTION": "true",
+    "DOMAIN": "cinakinetic.com"
+  },
+  "functions": {
+    "src/ui/streamlit_app.py": {
+      "runtime": "python3.11"
+    }
+  },
+  "regions": ["iad1", "sfo1"],
+  "framework": null
+}
