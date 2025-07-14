@@ -143,11 +143,18 @@ def create_setup_page():
                 ]
             )
             
-            if st.button("🚀 Launch RunPod"):
-                if runpod_api_key:
-                    launch_runpod(runpod_api_key, pod_template)
-                else:
-                    st.error("Please enter RunPod API key")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                if st.button("🚀 Launch RunPod"):
+                    if runpod_api_key:
+                        launch_runpod(runpod_api_key, pod_template)
+                    else:
+                        st.error("Please enter RunPod API key")
+            
+            with col2:
+                if st.button("🔗 Connect Existing Pod"):
+                    show_pod_connection_dialog()
         
         # RunPod management
         st.subheader("Pod Management")
@@ -459,3 +466,86 @@ def export_configuration() -> str:
 def import_configuration(config_file):
     """Import configuration from file"""
     pass
+
+def show_pod_connection_dialog():
+    """Show dialog to connect to existing RunPod"""
+    
+    st.subheader("Connect to Existing RunPod")
+    
+    pod_url = st.text_input(
+        "Pod ComfyUI URL",
+        placeholder="https://[pod-id]-8188.proxy.runpod.net",
+        help="Get this from your RunPod dashboard"
+    )
+    
+    if pod_url and st.button("Test Connection"):
+        test_runpod_connection_ui(pod_url)
+
+def test_runpod_connection_ui(pod_url: str):
+    """Test RunPod connection in UI"""
+    
+    with st.spinner("Testing connection..."):
+        try:
+            import requests
+            response = requests.get(f"{pod_url}/system_stats", timeout=10)
+            
+            if response.status_code == 200:
+                st.success("✅ Connection successful!")
+                
+                # Save to session state
+                st.session_state['runpod_url'] = pod_url
+                
+                # Get system info
+                stats = response.json()
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.write("**Pod Information:**")
+                    st.write(f"ComfyUI Version: {stats.get('system', {}).get('comfyui_version', 'Unknown')}")
+                    
+                with col2:
+                    st.write("**GPU Information:**")
+                    devices = stats.get('devices', [])
+                    if devices:
+                        gpu = devices[0]
+                        st.write(f"GPU: {gpu.get('name', 'Unknown')}")
+                        st.write(f"VRAM: {gpu.get('vram_total', 'Unknown')} MB")
+                
+                # Check for models
+                try:
+                    models_response = requests.get(f"{pod_url}/object_info", timeout=10)
+                    if models_response.status_code == 200:
+                        object_info = models_response.json()
+                        checkpoint_loader = object_info.get("CheckpointLoaderSimple", {})
+                        input_info = checkpoint_loader.get("input", {})
+                        ckpt_name_info = input_info.get("ckpt_name", {})
+                        
+                        if isinstance(ckpt_name_info, list) and len(ckpt_name_info) > 1:
+                            models = ckpt_name_info[0]
+                            wan_models = [m for m in models if 'wan' in m.lower()]
+                            
+                            st.write(f"**Models Available:** {len(models)}")
+                            if wan_models:
+                                st.success(f"🎯 WAN Models Found: {', '.join(wan_models)}")
+                            else:
+                                st.warning("⚠️ No WAN models detected")
+                                st.info("Upload your WAN models via Jupyter interface")
+                except:
+                    st.warning("Could not check models")
+                
+                if st.button("💾 Save RunPod Configuration"):
+                    save_runpod_config(pod_url)
+                    st.success("RunPod configuration saved!")
+                
+            else:
+                st.error(f"❌ Connection failed: HTTP {response.status_code}")
+                
+        except Exception as e:
+            st.error(f"❌ Connection error: {e}")
+            st.info("Make sure your pod is running and the URL is correct")
+
+def save_runpod_config(pod_url: str):
+    """Save RunPod configuration"""
+    st.session_state['runpod_configured'] = True
+    st.session_state['runpod_url'] = pod_url
+    # Would save to config file in real implementation
